@@ -8,6 +8,7 @@ use Psr\Log\LoggerInterface;
 use TelegramBot\Api\BotApi;
 use TelegramBot\Api\Exception;
 use TelegramBot\Api\InvalidArgumentException;
+use TelegramBot\Api\Types\ReplyKeyboardMarkup;
 use TelegramBot\Api\Types\Update;
 use TelegramBot\Api\Types\Inline\InlineKeyboardMarkup;
 
@@ -86,7 +87,7 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
     {
         $backButton = ['text' => '< Назад', 'callback_data' => '/start'];
         $buttons = [
-            ['text' => 'Подобрать запчасть', 'callback_data' => '/start_part'],
+            ['text' => 'Подобрать запчасть', 'callback_data' => '/start_part', 'request_contact' => true],
             ['text' => 'Заказы и возврат', 'callback_data' => '/start_order'],
             ['text' => 'Справка', 'callback_data' => '/start_help'],
             ['text' => 'Жалобы/Предложения', 'callback_data' => '/start_suggest'],
@@ -100,8 +101,22 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
             case '/start_part':
                 $text = 'Вам перезвонит наш специалист для подбора запчастей. Мы не передаём номер третьим лицам.';
                 $buttons = [
-                    ['text' => 'Подобрать запчасть', 'callback_data' => '/start_part_search'],
-                    ['text' => 'Узнать цену/наличие', 'callback_data' => '/start_part_price'],
+                    ['text' => 'Подобрать запчасть', 'callback_data' => '/start_part_search', 'request_contact' => true],
+                    ['text' => 'Узнать цену/наличие', 'callback_data' => '/start_part_price', 'request_contact' => true],
+                    $backButton
+                ];
+                break;
+
+            case '/start_part_search':
+                $text = 'start_part_search';
+                $buttons = [
+                    $backButton
+                ];
+                break;
+
+            case '/start_part_price':
+                $text = 'start_part_price';
+                $buttons = [
                     $backButton
                 ];
                 break;
@@ -148,7 +163,6 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
                 $text = 'Здравствуйте! Я бот AUTO3N.';
 
         }
-
 
         $replyMarkup = new InlineKeyboardMarkup([$buttons]);
 

@@ -8,6 +8,8 @@ framework:
 
     #esi: true
     #fragments: true
+    php_errors:
+        log: 4096
 
 when@test:
     framework:

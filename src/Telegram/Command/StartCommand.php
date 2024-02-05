@@ -2,6 +2,7 @@
 
 namespace App\Telegram\Command;
 
+use App\Service\Users\UserCreator;
 use BoShurik\TelegramBotBundle\Telegram\Command\AbstractCommand;
 use BoShurik\TelegramBotBundle\Telegram\Command\PublicCommandInterface;
 use Psr\Log\LoggerInterface;
@@ -12,6 +13,9 @@ use TelegramBot\Api\Types\ReplyKeyboardMarkup;
 use TelegramBot\Api\Types\ReplyKeyboardRemove;
 use TelegramBot\Api\Types\Update;
 use TelegramBot\Api\Types\Inline\InlineKeyboardMarkup;
+use TelegramBot\Api\Types\Message;
+use TelegramBot\Api\Types\Chat;
+use TelegramBot\Api\Types\User as TgUser;
 
 /**
  *
@@ -21,9 +25,12 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
 
     private LoggerInterface $logger;
 
-    public function __construct(LoggerInterface $logger)
+    private UserCreator $creator;
+
+    public function __construct(LoggerInterface $logger, UserCreator $creator)
     {
         $this->logger = $logger;
+        $this->creator = $creator;
     }
 
     public function getName(): string
@@ -40,16 +47,22 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
     {
         $index = isset($update) ? $this->getIndex($update) : null;
 
-        $messageId = null;
+        $user = $this->creator->create($update);
+
+        $this->logger->info(print_r($user, true));
+
+        $isCallback = false;
 
         if ($update->getCallbackQuery()) {
-            $chat      = $update->getCallbackQuery()->getMessage()->getChat();
-            $messageId = $update->getCallbackQuery()->getMessage()->getMessageId();
-        } else {
-            $chat = $update->getMessage()->getChat();
+            $message = $update->getCallbackQuery()->getMessage();
+            $chat      = $message->getChat();
+            $isCallback = true;
+         } else {
+            $message = $update->getMessage();
+            $chat = $message->getChat();
         }
 
-        $this->showSection($api, $index, $chat->getId(), $messageId);
+        $this->showSection($api, $index, $chat, $message, $isCallback);
     }
 
     public function isApplicable(Update $update): bool
@@ -85,8 +98,11 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
      * @throws Exception
      * @throws InvalidArgumentException
      */
-    private function showSection(BotApi $api, $index, $chatId, $messageId = null): void
+    private function showSection(BotApi $api, $index, Chat $chat, Message $message, bool $isCallback): void
     {
+        $messageId = $message->getMessageId();
+        $chatId = $chat->getId();
+        $tgUser = $message->getFrom();
         $terminate  = false;
         $backButton = ['text' => '< Назад', 'callback_data' => '/start'];
         $buttons    = [
@@ -100,7 +116,7 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
             ],
         ];
 
-        $this->logger->info('INDEX: ' . $index);
+        $this->logger->info('user: ' . $messageId);
         switch ($index) {
             case '/start':
                 $text = 'Здравствуйте! Я бот AUTO3N.';
@@ -222,8 +238,7 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
         }
 
         $replyMarkup = new InlineKeyboardMarkup($buttons);
-        $this->logger->error('$replyMarkup:' . $replyMarkup->toJson());
-        if ($messageId) {
+        if ($isCallback) {
             $api->editMessageText(
                 $chatId,
                 $messageId,

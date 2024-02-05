@@ -13,7 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity]
 #[ORM\HasLifecycleCallbacks]
 #[ORM\Table(name: "telegram_user")]
-#[ORM\Index(name: "iser_id_idx", columns: ["user_id"])]
+#[ORM\Index(name: "iser_id_idx", columns: ["telegram_id"])]
 class User
 {
 
@@ -29,16 +29,16 @@ class User
     #[ORM\Column(name: "updated_at", type: "datetime")]
     private ?DateTimeInterface $updatedAt;
 
-    #[ORM\Column(type: "integer", name: "user_id")]
-    private int $userId;
+    #[ORM\Column(type: "integer", name: "telegram_id")]
+    private int $telegramId;
 
 
     #[ORM\Column(type: "boolean", name: "is_bot")]
     private bool $isBot;
 
 
-    #[ORM\Column(type: "string", name: "first_name")]
-    private string $firstName;
+    #[ORM\Column(type: "string", name: "first_name", nullable: true)]
+    private ?string $firstName;
 
 
     #[ORM\Column(type: "string", name: "last_name", nullable: true)]
@@ -156,22 +156,23 @@ class User
     /**
      * @return int
      */
-    public function getUserId(): int
+    public function getTelegramId(): int
     {
-        return $this->userId;
+        return $this->telegramId;
     }
 
     /**
-     * @param int $userId
+     * @param int $telegramId
      *
      * @return User
      */
-    public function setUserId(int $userId): User
+    public function setTelegramId(int $telegramId): User
     {
-        $this->userId = $userId;
+        $this->telegramId = $telegramId;
 
         return $this;
     }
+
 
     /**
      * @return bool

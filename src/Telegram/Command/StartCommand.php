@@ -19,8 +19,6 @@ use TelegramBot\Api\Types\Inline\InlineKeyboardMarkup;
 class StartCommand extends AbstractCommand implements PublicCommandInterface
 {
 
-    // private const REGEX_INDEX = '/(\/start_\w+)/';
-
     private LoggerInterface $logger;
 
     public function __construct(LoggerInterface $logger)
@@ -126,7 +124,7 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
                     ]
                 ];
                 $replyMarkup = new ReplyKeyboardMarkup($buttons, true, true, true, false);
-                $api->sendMessage(
+                 $api->sendMessage(
                     $chatId,
                     $text,
                     'markdown',

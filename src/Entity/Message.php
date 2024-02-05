@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Entity;
@@ -13,50 +14,44 @@ use Doctrine\ORM\Mapping as ORM;
  *     @ORM\Index(name="chat_message_idx", columns={"chat_id", "message_id"})
  * })
  */
+#[ORM\Entity]
+#[ORM\HasLifecycleCallbacks]
+#[ORM\Table(name: "telegram_message")]
+#[ORM\Index(name: "chat_message_idx", columns: ["chat_id", "message_id"])]
 class Message
 {
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer", name="id")
-     */
+
+    #[ORM\Id()]
+    #[ORM\GeneratedValue()]
+    #[ORM\Column(type: "integer", name: "id")]
     private int $id;
 
-    /**
-     * @ORM\Column(name="created_at", type="datetime")
-     */
+    #[ORM\Column(name: "created_at", type: "datetime")]
     private ?DateTimeInterface $createdAt;
 
-    /**
-     * @ORM\Column(name="updated_at", type="datetime")
-     */
+
+    #[ORM\Column(name: "updated_at", type: "datetime")]
     private ?DateTimeInterface $updatedAt;
 
-    /**
-     * @ORM\Column(type="integer", name="chat_id")
-     */
+
+    #[ORM\Column(type: "integer", name: "chat_id")]
     private int $chatId;
 
-    /**
-     * @ORM\Column(type="integer", name="message_id")
-     */
+
+    #[ORM\Column(type: "integer", name: "message_id")]
     private int $messageId;
 
-    /**
-     * @ORM\Column(type="string", length=255, name="callback")
-     */
+
+    #[ORM\Column(type: "string", length: 255, name: "callback")]
     private ?string $callback;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="User")
-     * @ORM\JoinColumn(name="user", referencedColumnName="id", nullable=true)
-     */
+
+    #[ORM\ManyToOne(targetEntity: "User")]
+    #[ORM\JoinColumn(name: "user", referencedColumnName: "id", nullable: true)]
     private ?User $user;
 
 
-    /**
-     * @ORM\PrePersist
-     */
+    #[ORM\PrePersist]
     public function prePersist(): void
     {
         $datetime = new \DateTime();
@@ -65,9 +60,7 @@ class Message
         $this->updatedAt = $datetime;
     }
 
-    /**
-     * @ORM\PreUpdate
-     */
+    #[ORM\PreUpdate]
     public function preUpdate(): void
     {
         try {

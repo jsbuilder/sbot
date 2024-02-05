@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Entity;
@@ -7,89 +8,71 @@ use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity()
- * @ORM\Table(name="telegram_user", indexes={
- *     @ORM\Index(name="iser_id_idx", columns={"user_id"})
- * })
+ *
  */
+#[ORM\Entity]
+#[ORM\HasLifecycleCallbacks]
+#[ORM\Table(name: "telegram_user")]
+#[ORM\Index(name: "iser_id_idx", columns: ["user_id"])]
 class User
 {
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer", name="id")
-     */
+
+    #[ORM\Id()]
+    #[ORM\GeneratedValue()]
+    #[ORM\Column(type: "integer", name: "id")]
     private int $id;
 
-    /**
-     * @ORM\Column(name="created_at", type="datetime")
-     */
+    #[ORM\Column(name: "created_at", type: "datetime")]
     private ?DateTimeInterface $createdAt;
 
-    /**
-     * @ORM\Column(name="updated_at", type="datetime")
-     */
+
+    #[ORM\Column(name: "updated_at", type: "datetime")]
     private ?DateTimeInterface $updatedAt;
 
-
-    /**
-     * @ORM\Column(type="integer", name="user_id")
-     */
+    #[ORM\Column(type: "integer", name: "user_id")]
     private int $userId;
 
-    /**
-     * @ORM\Column(type="boolean", name="is_bot")
-     */
+
+    #[ORM\Column(type: "boolean", name: "is_bot")]
     private bool $isBot;
 
-    /**
-     * @ORM\Column(type="string", name="first_name")
-     */
+
+    #[ORM\Column(type: "string", name: "first_name")]
     private string $firstName;
 
-    /**
-     * @ORM\Column(type="string", name="last_name", nullable=true)
-     */
+
+    #[ORM\Column(type: "string", name: "last_name", nullable: true)]
     private ?string $lastName = null;
 
-    /**
-     * @ORM\Column(type="string", name="username", nullable=true)
-     */
+
+    #[ORM\Column(type: "string", name: "username", nullable: true)]
     private ?string $username = null;
 
-    /**
-     * @ORM\Column(type="string", length=10, name="language_code", nullable=true)
-     */
+
+    #[ORM\Column(type: "string", length: 10, name: "language_code", nullable: true)]
     private ?string $languageCode = null;
 
-    /**
-     * @ORM\Column(type="boolean", name="can_join_groups", nullable=true)
-     */
+
+    #[ORM\Column(type: "boolean", name: "can_join_groups", nullable: true)]
     private ?bool $canJoinGroups = null;
 
-    /**
-     * @ORM\Column(type="boolean", name="can_read_all_group_messages", nullable=true)
-     */
+
+    #[ORM\Column(type: "boolean", name: "can_read_all_group_messages", nullable: true)]
     private ?bool $canReadAllGroupMessages = null;
 
-    /**
-     * @ORM\Column(type="boolean", name="supports_inline_queries", nullable=true)
-     */
+
+    #[ORM\Column(type: "boolean", name: "supports_inline_queries", nullable: true)]
     private ?bool $supportsInlineQueries = null;
 
-    /**
-     * @ORM\Column(type="string", length=255, name="phone_number", nullable=true)
-     */
+
+    #[ORM\Column(type: "string", length: 255, name: "phone_number", nullable: true)]
     private ?string $phoneNumber = null;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
     private ?string $location = null;
 
-    /**
-     * @ORM\PrePersist
-     */
+    #[ORM\PrePersist]
     public function prePersist(): void
     {
         $datetime = new \DateTime();
@@ -98,9 +81,7 @@ class User
         $this->updatedAt = $datetime;
     }
 
-    /**
-     * @ORM\PreUpdate
-     */
+    #[ORM\PreUpdate]
     public function preUpdate(): void
     {
         try {

@@ -5,6 +5,7 @@ namespace App\Service\Users;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
+use TelegramBot\Api\Types\Message;
 use TelegramBot\Api\Types\Update;
 use TelegramBot\Api\Types\User as TgUser;
 
@@ -21,11 +22,16 @@ class UserCreator
         $this->userRepository = $userRepository;
     }
 
-    public function create(Update $update): ?User {
+    public function create(?Update $update = null, ?Message $message = null): ?User {
+
+        if($update){
         if ($update->getCallbackQuery()) {
             $tgUser = $update->getCallbackQuery()->getFrom();
         } else {
             $tgUser = $update->getMessage()->getFrom();
+        }
+        } else {
+            $tgUser = $message->getFrom();
         }
 
         $user = $this->userRepository->findByTelegramId($tgUser->getId());

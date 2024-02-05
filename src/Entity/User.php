@@ -19,7 +19,7 @@ class User
 
     #[ORM\Id()]
     #[ORM\GeneratedValue()]
-    #[ORM\Column(type: "integer", name: "id")]
+    #[ORM\Column(type: "bigint", name: "id")]
     private int $id;
 
     #[ORM\Column(name: "created_at", type: "datetime")]
@@ -29,7 +29,7 @@ class User
     #[ORM\Column(name: "updated_at", type: "datetime")]
     private ?DateTimeInterface $updatedAt;
 
-    #[ORM\Column(type: "integer", name: "telegram_id")]
+    #[ORM\Column(type: "bigint", name: "telegram_id")]
     private int $telegramId;
 
 

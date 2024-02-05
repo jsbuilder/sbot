@@ -2,6 +2,7 @@
 
 namespace App\Telegram\Command;
 
+use App\Service\Message\MessageSaver;
 use App\Service\Users\UserCreator;
 use BoShurik\TelegramBotBundle\Telegram\Command\AbstractCommand;
 use BoShurik\TelegramBotBundle\Telegram\Command\PublicCommandInterface;
@@ -27,10 +28,13 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
 
     private UserCreator $creator;
 
-    public function __construct(LoggerInterface $logger, UserCreator $creator)
+    private MessageSaver $messageSaver;
+
+    public function __construct(LoggerInterface $logger, UserCreator $creator, MessageSaver $messageSaver)
     {
         $this->logger = $logger;
         $this->creator = $creator;
+        $this->messageSaver = $messageSaver;
     }
 
     public function getName(): string
@@ -48,8 +52,6 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
         $index = isset($update) ? $this->getIndex($update) : null;
 
         $user = $this->creator->create($update);
-
-        $this->logger->info(print_r($user, true));
 
         $isCallback = false;
 
@@ -140,7 +142,7 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
                     ]
                 ];
                 $replyMarkup = new ReplyKeyboardMarkup($buttons, true, true, true, false);
-                 $api->sendMessage(
+                $sendedMessage = $api->sendMessage(
                     $chatId,
                     $text,
                     'markdown',
@@ -148,6 +150,8 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
                     null,
                     $replyMarkup
                 );
+                $this->messageSaver->save($sendedMessage, $index);
+                $this->logger->info('$sendedMessage: ' . print_r($sendedMessage->getFrom()->getId(), true));
                 $terminate = true;
                 break;
 

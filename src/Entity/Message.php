@@ -23,7 +23,7 @@ class Message
 
     #[ORM\Id()]
     #[ORM\GeneratedValue()]
-    #[ORM\Column(type: "integer", name: "id")]
+    #[ORM\Column(type: "bigint", name: "id")]
     private int $id;
 
     #[ORM\Column(name: "created_at", type: "datetime")]
@@ -34,17 +34,19 @@ class Message
     private ?DateTimeInterface $updatedAt;
 
 
-    #[ORM\Column(type: "integer", name: "chat_id")]
+    #[ORM\Column(type: "bigint", name: "chat_id")]
     private int $chatId;
 
 
-    #[ORM\Column(type: "integer", name: "message_id")]
+    #[ORM\Column(type: "bigint", name: "message_id")]
     private int $messageId;
 
 
-    #[ORM\Column(type: "string", length: 255, name: "callback")]
+    #[ORM\Column(type: "string", length: 255, name: "callback", nullable: true)]
     private ?string $callback;
 
+    #[ORM\Column(type: "string", length: 255, name: "text", nullable: true)]
+    private ?string $text;
 
     #[ORM\ManyToOne(targetEntity: "User")]
     #[ORM\JoinColumn(name: "user", referencedColumnName: "id", nullable: true)]
@@ -193,12 +195,34 @@ class Message
     }
 
     /**
+     * @return string|null
+     */
+    public function getText(): ?string
+    {
+        return $this->text;
+    }
+
+    /**
+     * @param string|null $text
+     *
+     * @return Message
+     */
+    public function setText(?string $text): Message
+    {
+        $this->text = $text;
+
+        return $this;
+    }
+
+
+    /**
      * @return User|null
      */
     public function getUser(): ?User
     {
         return $this->user;
     }
+
 
     /**
      * @param User|null $user

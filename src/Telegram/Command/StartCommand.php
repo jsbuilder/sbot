@@ -237,8 +237,6 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
                         $backButton
                     ]
                 ];
-
-                $this->logger->info('/start_part_search');
                 break;
 
             case '/start_part_price':

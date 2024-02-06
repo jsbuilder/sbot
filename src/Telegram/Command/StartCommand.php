@@ -148,7 +148,14 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
         return null;
     }
 
-    private function inArrayR($needle, $haystack, $strict = false)
+    /**
+     * @param $needle
+     * @param $haystack
+     * @param $strict
+     *
+     * @return bool
+     */
+    private function inArrayR($needle, $haystack, $strict = false): bool
     {
         foreach ($haystack as $item) {
             if (($strict ? $item === $needle : $item == $needle)

@@ -182,7 +182,6 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
         $chatId         = $chat->getId();
         $user           = $this->getUser();
         $requestContact = !$user->getPhoneNumber();
-        $terminate      = false;
         $backButton     = ['text' => '< Назад', 'callback_data' => '/start'];
         $buttons        = [
             [
@@ -215,7 +214,9 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
                             'text'            => 'Узнать цену/наличие',
                             'callback_data'   => '/start_part_price',
                             'request_contact' => $requestContact
-                        ],
+                        ]
+                    ],
+                    [
                         $backButton
                     ]
                 ];
@@ -247,7 +248,9 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
                 $buttons = [
                     [
                         ['text' => 'Узнать статус заказа', 'callback_data' => '/start_order_status'],
-                        ['text' => 'Вернуть товары', 'callback_data' => '/start_order_refund'],
+                        ['text' => 'Вернуть товары', 'callback_data' => '/start_order_refund']
+                    ],
+                    [
                         $backButton
                     ]
                 ];

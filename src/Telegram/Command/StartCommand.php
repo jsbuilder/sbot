@@ -62,6 +62,12 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
          } else {
             $message = $update->getMessage();
             $chat = $message->getChat();
+
+            if($message->getContact() && !$user->getPhoneNumber()){
+                $user->setPhoneNumber($message->getContact()->getPhoneNumber());
+                $user = $this->creator->update($user);
+
+            }
         }
 
         $this->showSection($api, $index, $chat, $message, $isCallback);
@@ -78,14 +84,23 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
 
     private function getIndex(Update $update): ?string
     {
-        if ($update->getMessage()) {
-            $this->logger->error(print_r($update->getMessage()->getContact(), true));
 
+        if ($update->getMessage()) {
+            $replay = $update->getMessage()->getReplyToMessage();
+            if($replay){
+                $replayId = $replay->getMessageId();
+                $replayChatId = $replay->getChat()->getId();
+                $replayMessage = $this->messageSaver->messageRepository->findByChatMessage($replayChatId, $replayId);
+                return $replayMessage->getCallback();
+            }
             return $update->getMessage()->getText();
+
         }
         if ($update->getCallbackQuery()) {
             return $update->getCallbackQuery()->getData();
         }
+
+
 
         return null;
     }

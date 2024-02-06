@@ -18,7 +18,7 @@ class MessageSaver
      */
     private $userCreator;
 
-    private MessageRepository $messageRepository;
+    public MessageRepository $messageRepository;
 
     public function __construct(
         UserRepository $userRepository,

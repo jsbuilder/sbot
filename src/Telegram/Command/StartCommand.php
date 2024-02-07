@@ -310,7 +310,7 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
             case '/start_part':
                 $text    = ($requestContact)
                     ? 'Нам потребуется Ваш номер телефона'
-                    : 'Выберите что требуется';
+                    : 'Выберите что требуется?';
                 $buttons = [
                     [
                         [

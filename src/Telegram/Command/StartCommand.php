@@ -424,16 +424,25 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
                 $text    = ($userText) ? 'Спасибо, я передам ваше предложение специалисту.'
                     : 'Пожалуйста, расскажите, что случилось. Если проблема связана с заказом, скопируйте его номер из СМС или письма с подтверждением заказа. Обязательно напишите номер телефона для связи с вами. Мы перезвоним в течение 1 часа, чтобы узнать подробности.';
                 $buttons = [[$backButton]];
-                $mSubject = 'Telegram - Жалоба';
-                $mText    = $mSubject . "\r\n" . $this->mUserInfo($user)
-                    . "\r\n" . "--\r\n" . $userText;
-                $this->sendEmail($mSubject, $mText);
+
+                if($userText) {
+                    $mSubject = 'Telegram - Жалоба';
+                    $mText = $mSubject . "\r\n" . $this->mUserInfo($user)
+                        . "\r\n" . "--\r\n" . $userText;
+                    $this->sendEmail($mSubject, $mText);
+                }
                 break;
 
             case '/start_offer':
                 $text    = ($userText) ? 'Запрос принят и передан на обработку.'
                     : 'Расскажите, что нам улучшить в работе? Если вы хотите стать нашим партнером, расскажите о себе и оставьте контакты.';
                 $buttons = [[$backButton]];
+                if($userText) {
+                    $mSubject = 'Telegram - Предложениеы';
+                    $mText    = $mSubject . "\r\n" . $this->mUserInfo($user)
+                        . "\r\n" . "--\r\n" . $userText;
+                    $this->sendEmail($mSubject, $mText);
+                }
                 break;
 
             default:

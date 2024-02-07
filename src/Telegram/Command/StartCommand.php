@@ -3,6 +3,7 @@
 namespace App\Telegram\Command;
 
 use App\Entity\User;
+use App\Entity\Message as MessageEntity;
 use App\Service\Message\MessageSaver;
 use App\Service\Users\UserCreator;
 use BoShurik\TelegramBotBundle\Telegram\Command\AbstractCommand;
@@ -12,12 +13,10 @@ use TelegramBot\Api\BotApi;
 use TelegramBot\Api\Exception;
 use TelegramBot\Api\InvalidArgumentException;
 use TelegramBot\Api\Types\ReplyKeyboardMarkup;
-use TelegramBot\Api\Types\ReplyKeyboardRemove;
 use TelegramBot\Api\Types\Update;
 use TelegramBot\Api\Types\Inline\InlineKeyboardMarkup;
 use TelegramBot\Api\Types\Message;
 use TelegramBot\Api\Types\Chat;
-use TelegramBot\Api\Types\User as TgUser;
 
 /**
  *
@@ -34,6 +33,9 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
     private ?User $user;
 
     private ?Message $replayMessage;
+
+    private ?MessageEntity $lastMessage;
+
 
     public function __construct(LoggerInterface $logger, UserCreator $creator, MessageSaver $messageSaver)
     {
@@ -82,6 +84,25 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
         return $this;
     }
 
+    /**
+     * @return MessageEntity|null
+     */
+    public function getLastMessage(): ?MessageEntity
+    {
+        return $this->lastMessage;
+    }
+
+    /**
+     * @param MessageEntity|null $lastMessage
+     *
+     * @return StartCommand
+     */
+    public function setLastMessage(?MessageEntity $lastMessage): StartCommand
+    {
+        $this->lastMessage = $lastMessage;
+
+        return $this;
+    }
 
     public function getName(): string
     {
@@ -97,7 +118,7 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
     {
         $index = isset($update) ? $this->getIndex($update) : null;
 
-        $user = $this->setUser($this->creator->create($update))->getUser();
+        $user = $this->getUser();
 
         $isCallback = false;
 
@@ -129,6 +150,8 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
 
     private function getIndex(Update $update): ?string
     {
+        $user = $this->setUser($this->creator->create($update))->getUser();
+
         if ($update->getMessage()) {
             $replay = $this->setReplayMessage($update->getMessage()->getReplyToMessage())->getReplayMessage();
             if ($replay) {
@@ -137,6 +160,16 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
                 $storedMessage = $this->messageSaver->messageRepository->findByChatMessage($replayChatId, $replayId);
 
                 return $storedMessage->getCallback();
+            }
+
+            $lastMessage = $this->setLastMessage(
+                $this->messageSaver->getLastMessage(
+                    $update->getMessage()->getChat()->getId(),
+                    $user
+            ))->getLastMessage();
+
+            if($lastMessage){
+                return $lastMessage->getCallback();
             }
 
             return $update->getMessage()->getText();
@@ -185,6 +218,7 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
      */
     private function showSection(BotApi $api, $index, Chat $chat, Message $message, bool $isCallback): void
     {
+        $terminate      = false;
         $messageId      = $message->getMessageId();
         $chatId         = $chat->getId();
         $user           = $this->getUser();
@@ -234,7 +268,17 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
 
                 $buttons = [
                     [
-                        $backButton
+                        [
+                            'text'            => 'aaaaaa',
+                            'callback_data'   => '/aaaaa',
+                            'input_field_placeholder' => 'aaaaaaaaaaaa',
+                            'switch_inline_query_current_chat' => "bbbbbbbbbbb",
+                            'switch_inline_query' => "text",
+                            "input_message_content" => [
+                                "message_text" => "*Test*",
+                                "parse_mode" => "Markdown",
+                            ]
+                        ],
                     ]
                 ];
                 break;
@@ -301,6 +345,10 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
                 $text = 'Здравствуйте! Я бот AUTO3N.';
         }
 
+        if ($terminate) {
+            return;
+        }
+
         if ($this->inArrayR(['request_contact' => true], $buttons, false)) {
             $replyMarkup   = new ReplyKeyboardMarkup($buttons, true, true, true, false);
             $sendedMessage = $api->sendMessage(
@@ -334,6 +382,6 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
             }
         }
 
-        $this->messageSaver->save($sendedMessage, $index);
+        $this->messageSaver->save($sendedMessage, $index, $user);
     }
 }

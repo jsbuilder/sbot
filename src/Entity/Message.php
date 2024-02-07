@@ -7,17 +7,11 @@ namespace App\Entity;
 use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\HasLifecycleCallbacks
- * @ORM\Entity()
- * @ORM\Table(name="telegram_message", indexes={
- *     @ORM\Index(name="chat_message_idx", columns={"chat_id", "message_id"})
- * })
- */
 #[ORM\Entity]
 #[ORM\HasLifecycleCallbacks]
 #[ORM\Table(name: "telegram_message")]
 #[ORM\Index(name: "chat_message_idx", columns: ["chat_id", "message_id"])]
+#[ORM\Index(name: "chat_recipient_idx", columns: ["chat_id", "recipient"])]
 class Message
 {
 
@@ -51,6 +45,10 @@ class Message
     #[ORM\ManyToOne(targetEntity: "User")]
     #[ORM\JoinColumn(name: "user", referencedColumnName: "id", nullable: true)]
     private ?User $user;
+
+    #[ORM\ManyToOne(targetEntity: "User")]
+    #[ORM\JoinColumn(name: "recipient", referencedColumnName: "id", nullable: true)]
+    private ?User $recipient;
 
 
     #[ORM\PrePersist]
@@ -232,6 +230,26 @@ class Message
     public function setUser(?User $user): Message
     {
         $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * @return User|null
+     */
+    public function getRecipient(): ?User
+    {
+        return $this->recipient;
+    }
+
+    /**
+     * @param User|null $recipient
+     *
+     * @return Message
+     */
+    public function setRecipient(?User $recipient): Message
+    {
+        $this->recipient = $recipient;
 
         return $this;
     }

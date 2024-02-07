@@ -1,8 +1,10 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Repository;
 
+use App\Entity\User;
 use Exception;
 use App\Entity\Message;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -17,6 +19,7 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class MessageRepository extends ServiceEntityRepository
 {
+
     private LoggerInterface $logger;
 
     public function __construct(ManagerRegistry $registry, LoggerInterface $logger)
@@ -41,12 +44,33 @@ class MessageRepository extends ServiceEntityRepository
 
     public function findByChatMessage(int $chatId, int $messageId): ?Message
     {
-        $message = $this->findOneBy([
-            'messageId' => $messageId,
-            'chatId' => $chatId
-                                    ]);
+        $message = $this->findOneBy(
+            [
+                'chatId'    => $chatId,
+                'messageId' => $messageId
+            ],
+            [
+                'id' => 'desc'
+            ]
+        );
 
         return $message instanceof Message ? $message : null;
     }
+
+    public function lastMessageChatRecipient(int $chatId, User $recipient): ?Message
+    {
+        $message = $this->findOneBy(
+            [
+                'chatId'    => $chatId,
+                'recipient' => $recipient
+            ],
+            [
+                'id' => 'desc'
+            ]
+        );
+
+        return $message instanceof Message ? $message : null;
+    }
+
 
 }

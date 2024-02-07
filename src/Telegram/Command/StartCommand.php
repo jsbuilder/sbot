@@ -9,6 +9,8 @@ use App\Service\Users\UserCreator;
 use BoShurik\TelegramBotBundle\Telegram\Command\AbstractCommand;
 use BoShurik\TelegramBotBundle\Telegram\Command\PublicCommandInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
 use TelegramBot\Api\BotApi;
 use TelegramBot\Api\Exception;
 use TelegramBot\Api\InvalidArgumentException;
@@ -38,12 +40,19 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
 
     private string $userText;
 
-    public function __construct(LoggerInterface $logger, UserCreator $creator, MessageSaver $messageSaver)
-    {
+    private MailerInterface $mailer;
+
+    public function __construct(
+        LoggerInterface $logger,
+        UserCreator $creator,
+        MessageSaver $messageSaver,
+        MailerInterface $mailer
+    ) {
         $this->logger       = $logger;
         $this->creator      = $creator;
         $this->messageSaver = $messageSaver;
         $this->userText     = '';
+        $this->mailer       = $mailer;
     }
 
     /**
@@ -231,6 +240,33 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
         return false;
     }
 
+    private function mUserInfo(User $user): string
+    {
+        return 'telegramId: ' . $user->getTelegramId()
+            . "\r\n"
+            . 'telegramFLName: ' . $user->getFirstName() . ' ' . $user->getLastName()
+            . "\r\n"
+            . 'Phone: ' . $user->getPhoneNumber()
+            . "\r\n"
+            . 'language: ' . $user->getLanguageCode();
+    }
+
+    private function sendEmail(string $subject, string $text): void
+    {
+        $email = (new Email())
+            ->from('rfatuk@yandex.ru')
+            ->to('jsbuilder@inbox.ru')
+            //->cc('cc@example.com')
+            //->bcc('bcc@example.com')
+            //->replyTo('fabien@example.com')
+            //->priority(Email::PRIORITY_HIGH)
+            ->subject($subject)
+            ->text($text)// ->html('<p>See Twig integration for better HTML integration!</p>')
+        ;
+
+        $this->mailer->send($email);
+        // ...
+    }
 
     /**
      * @param BotApi $api
@@ -297,11 +333,14 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
             case '/start_part_search':
                 $text = $regerdsAnswer;
 
-                $buttons = [
+                $buttons  = [
                     [
                         $backButton
                     ]
                 ];
+                $mSubject = 'Telegram - Запрос по подбору запчастей';
+                $mText    = $mSubject . "\r\n" . $this->mUserInfo($user);
+                $this->sendEmail($mSubject, $mText);
                 break;
 
             case '/start_part_price':
@@ -312,6 +351,9 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
                         $backButton
                     ]
                 ];
+                $mSubject = 'Telegram - Узнать цену/наличие';
+                $mText    = $mSubject . "\r\n" . $this->mUserInfo($user);
+                $this->sendEmail($mSubject, $mText);
                 break;
 
             case '/start_order':
@@ -340,6 +382,13 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
                     : 'Скопируйте номер заказа из СМС или письма с подтверждением заказа.'
                     . ' Например: S8888888, M7777777 или 6666666.';
                 $buttons = [[$backButton]];
+
+                if($userText){
+                    $mSubject = 'Telegram - Узнатьыы статус заказа';
+                    $mText    = $mSubject . "\r\n" . $this->mUserInfo($user)
+                        . "\r\n" . "Номер заказаы: " . $userText;
+                    $this->sendEmail($mSubject, $mText);
+                }
                 break;
 
             case '/start_order_refund':
@@ -356,13 +405,15 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
                 $text    = 'Что нужно сделать?';
                 $buttons = [
                     [
-                        ['text'            => 'Жалоба',
-                         'callback_data'   => '/start_complaint',
-                         'request_contact' => $requestContact
+                        [
+                            'text'            => 'Жалоба',
+                            'callback_data'   => '/start_complaint',
+                            'request_contact' => $requestContact
                         ],
-                        ['text'            => 'Предложение',
-                         'callback_data'   => '/start_offer',
-                         'request_contact' => $requestContact
+                        [
+                            'text'            => 'Предложение',
+                            'callback_data'   => '/start_offer',
+                            'request_contact' => $requestContact
                         ],
                         $backButton
                     ]
@@ -373,6 +424,10 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
                 $text    = ($userText) ? 'Спасибо, я передам ваше предложение специалисту.'
                     : 'Пожалуйста, расскажите, что случилось. Если проблема связана с заказом, скопируйте его номер из СМС или письма с подтверждением заказа. Обязательно напишите номер телефона для связи с вами. Мы перезвоним в течение 1 часа, чтобы узнать подробности.';
                 $buttons = [[$backButton]];
+                $mSubject = 'Telegram - Жалоба';
+                $mText    = $mSubject . "\r\n" . $this->mUserInfo($user)
+                    . "\r\n" . "--\r\n" . $userText;
+                $this->sendEmail($mSubject, $mText);
                 break;
 
             case '/start_offer':

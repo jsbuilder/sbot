@@ -346,7 +346,7 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
             case '/start_part_price':
                 $text = $regerdsAnswer;
 
-                $buttons = [
+                $buttons  = [
                     [
                         $backButton
                     ]
@@ -383,10 +383,10 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
                     . ' Например: S8888888, M7777777 или 6666666.';
                 $buttons = [[$backButton]];
 
-                if($userText){
-                    $mSubject = 'Telegram - Узнатьыы статус заказа';
+                if ($userText) {
+                    $mSubject = 'Telegram - Узнать статус заказа';
                     $mText    = $mSubject . "\r\n" . $this->mUserInfo($user)
-                        . "\r\n" . "Номер заказаы: " . $userText;
+                        . "\r\n" . "Номер заказа: " . $userText;
                     $this->sendEmail($mSubject, $mText);
                 }
                 break;
@@ -421,23 +421,25 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
                 break;
 
             case '/start_complaint':
-                $text    = ($userText) ? 'Спасибо, я передам ваше предложение специалисту.'
+                $text    = ($userText)
+                    ? 'Запрос принят и передан на обработку.'
                     : 'Пожалуйста, расскажите, что случилось. Если проблема связана с заказом, скопируйте его номер из СМС или письма с подтверждением заказа. Обязательно напишите номер телефона для связи с вами. Мы перезвоним в течение 1 часа, чтобы узнать подробности.';
                 $buttons = [[$backButton]];
 
-                if($userText) {
+                if ($userText) {
                     $mSubject = 'Telegram - Жалоба';
-                    $mText = $mSubject . "\r\n" . $this->mUserInfo($user)
+                    $mText    = $mSubject . "\r\n" . $this->mUserInfo($user)
                         . "\r\n" . "--\r\n" . $userText;
                     $this->sendEmail($mSubject, $mText);
                 }
                 break;
 
             case '/start_offer':
-                $text    = ($userText) ? 'Запрос принят и передан на обработку.'
+                $text    = ($userText)
+                    ? 'Спасибо, я передам ваше предложение специалисту.'
                     : 'Расскажите, что нам улучшить в работе? Если вы хотите стать нашим партнером, расскажите о себе и оставьте контакты.';
                 $buttons = [[$backButton]];
-                if($userText) {
+                if ($userText) {
                     $mSubject = 'Telegram - Предложениеы';
                     $mText    = $mSubject . "\r\n" . $this->mUserInfo($user)
                         . "\r\n" . "--\r\n" . $userText;

@@ -36,12 +36,14 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
 
     private ?MessageEntity $lastMessage;
 
+    private string $userText;
 
     public function __construct(LoggerInterface $logger, UserCreator $creator, MessageSaver $messageSaver)
     {
         $this->logger       = $logger;
         $this->creator      = $creator;
         $this->messageSaver = $messageSaver;
+        $this->userText     = '';
     }
 
     /**
@@ -103,6 +105,27 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
 
         return $this;
     }
+
+    /**
+     * @return string
+     */
+    public function getUserText(): string
+    {
+        return $this->userText;
+    }
+
+    /**
+     * @param string $userText
+     *
+     * @return StartCommand
+     */
+    public function setUserText(string $userText): StartCommand
+    {
+        $this->userText = $userText;
+
+        return $this;
+    }
+
 
     public function getName(): string
     {
@@ -166,9 +189,12 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
                 $this->messageSaver->getLastMessage(
                     $update->getMessage()->getChat()->getId(),
                     $user
-            ))->getLastMessage();
+                )
+            )->getLastMessage();
 
-            if($lastMessage){
+            if ($lastMessage) {
+                $this->setUserText($update->getMessage()->getText());
+
                 return $lastMessage->getCallback();
             }
 
@@ -222,9 +248,14 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
         $messageId      = $message->getMessageId();
         $chatId         = $chat->getId();
         $user           = $this->getUser();
+        $userText       = $this->getUserText();
         $requestContact = !$user->getPhoneNumber();
-        $backButton     = ['text' => '< Назад', 'callback_data' => '/start'];
-        $buttons        = [
+        $regerdsAnswer  = "Спасибо!\n"
+            . "Специалист перезвонит в течение 20 минут и уточнит подробности запроса."
+            . " Мы работаем без выходных с утра до вечера.";
+
+        $backButton = ['text' => '< Назад', 'callback_data' => '/start'];
+        $buttons    = [
             [
                 ['text' => 'Подобрать запчасть', 'callback_data' => '/start_part'],
                 ['text' => 'Заказы и возврат', 'callback_data' => '/start_order']
@@ -264,27 +295,18 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
                 break;
 
             case '/start_part_search':
-                $text = 'start_part_search';
+                $text = $regerdsAnswer;
 
                 $buttons = [
                     [
-                        [
-                            'text'            => 'aaaaaa',
-                            'callback_data'   => '/aaaaa',
-                            'input_field_placeholder' => 'aaaaaaaaaaaa',
-                            'switch_inline_query_current_chat' => "bbbbbbbbbbb",
-                            'switch_inline_query' => "text",
-                            "input_message_content" => [
-                                "message_text" => "*Test*",
-                                "parse_mode" => "Markdown",
-                            ]
-                        ],
+                        $backButton
                     ]
                 ];
                 break;
 
             case '/start_part_price':
-                $text    = 'start_part_price';
+                $text = $regerdsAnswer;
+
                 $buttons = [
                     [
                         $backButton
@@ -293,7 +315,7 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
                 break;
 
             case '/start_order':
-                $text    = 'Вам перезвонит наш специалист для подбора запчастей. Мы не передаём номер третьим лицам.';
+                $text    = 'Что нужно сделать?';
                 $buttons = [
                     [
                         ['text' => 'Узнать статус заказа', 'callback_data' => '/start_order_status'],
@@ -306,7 +328,10 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
                 break;
 
             case '/start_order_status':
-                $text    = 'Скопируйте номер заказа из СМС или письма с подтверждением заказа. Например: S8888888, M7777777 или 6666666.';
+                $text    = ($userText)
+                    ? $regerdsAnswer
+                    : 'Скопируйте номер заказа из СМС или письма с подтверждением заказа.'
+                    . ' Например: S8888888, M7777777 или 6666666.';
                 $buttons = [[$backButton]];
                 break;
 

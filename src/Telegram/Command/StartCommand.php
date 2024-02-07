@@ -318,8 +318,15 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
                 $text    = 'Что нужно сделать?';
                 $buttons = [
                     [
-                        ['text' => 'Узнать статус заказа', 'callback_data' => '/start_order_status'],
-                        ['text' => 'Вернуть товары', 'callback_data' => '/start_order_refund']
+                        [
+                            'text'            => 'Узнать статус заказа',
+                            'callback_data'   => '/start_order_status',
+                            'request_contact' => $requestContact
+                        ],
+                        [
+                            'text'          => 'Вернуть товары',
+                            'callback_data' => '/start_order_refund'
+                        ]
                     ],
                     [
                         $backButton
@@ -349,20 +356,28 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
                 $text    = 'Что нужно сделать?';
                 $buttons = [
                     [
-                        ['text' => 'Жалоба', 'callback_data' => '/start_complaint'],
-                        ['text' => 'Предложение', 'callback_data' => '/start_offer'],
+                        ['text'            => 'Жалоба',
+                         'callback_data'   => '/start_complaint',
+                         'request_contact' => $requestContact
+                        ],
+                        ['text'            => 'Предложение',
+                         'callback_data'   => '/start_offer',
+                         'request_contact' => $requestContact
+                        ],
                         $backButton
                     ]
                 ];
                 break;
 
             case '/start_complaint':
-                $text    = 'Пожалуйста, расскажите, что случилось. Если проблема связана с заказом, скопируйте его номер из СМС или письма с подтверждением заказа. Обязательно напишите номер телефона для связи с вами. Мы перезвоним в течение 1 часа, чтобы узнать подробности.';
+                $text    = ($userText) ? 'Спасибо, я передам ваше предложение специалисту.'
+                    : 'Пожалуйста, расскажите, что случилось. Если проблема связана с заказом, скопируйте его номер из СМС или письма с подтверждением заказа. Обязательно напишите номер телефона для связи с вами. Мы перезвоним в течение 1 часа, чтобы узнать подробности.';
                 $buttons = [[$backButton]];
                 break;
 
             case '/start_offer':
-                $text    = 'Расскажите, что нам улучшить в работе? Если вы хотите стать нашим партнером, расскажите о себе и оставьте контакты.';
+                $text    = ($userText) ? 'Запрос принят и передан на обработку.'
+                    : 'Расскажите, что нам улучшить в работе? Если вы хотите стать нашим партнером, расскажите о себе и оставьте контакты.';
                 $buttons = [[$backButton]];
                 break;
 

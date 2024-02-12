@@ -29,11 +29,13 @@ class UserCreator
 
     public function create(?Update $update = null, ?Message $message = null): ?User
     {
-        if ($update) {
+        if ($update !== null) {
             if ($update->getCallbackQuery()) {
                 $tgUser = $update->getCallbackQuery()->getFrom();
-            } else {
+            } else if ($update->getMessage()) {
                 $tgUser = $update->getMessage()->getFrom();
+            } else if ($update->getEditedMessage()) {
+                $tgUser = $update->getEditedMessage()->getFrom();
             }
         } else {
             $tgUser = $message->getFrom();

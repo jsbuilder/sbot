@@ -293,18 +293,18 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
         $backButton = ['text' => '< Назад', 'callback_data' => '/start'];
         $buttons    = [
             [
-                ['text' => 'Подобрать запчасть', 'callback_data' => '/start_part'],
-                ['text' => 'Заказы и возврат', 'callback_data' => '/start_order']
+                ['text' => '🔎 Подобрать запчасть', 'callback_data' => '/start_part'],
+                ['text' => '😠 Заказы и возврат', 'callback_data' => '/start_order']
             ],
             [
-                ['text' => 'Справка', 'callback_data' => '/start_help'],
-                ['text' => 'Жалобы/Предложения', 'callback_data' => '/start_suggest']
+                ['text' => '📝 Справка', 'callback_data' => '/start_help'],
+                ['text' => '✍ Жалобы/Предложения', 'callback_data' => '/start_suggest']
             ],
         ];
 
         switch ($index) {
             case '/start':
-                $text = 'Здравствуйте! Я бот AUTO3N.';
+                $text = '👋 Здравствуйте! Я бот AUTO3N.';
                 break;
 
             case '/start_part':
@@ -314,7 +314,7 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
                 $buttons = [
                     [
                         [
-                            'text'            => 'Подобрать запчасть',
+                            'text'            => '🔎 Подобрать запчасть',
                             'callback_data'   => '/start_part_search',
                             'request_contact' => $requestContact
                         ],
@@ -384,7 +384,7 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
                 $buttons = [[$backButton]];
 
                 if ($userText) {
-                    if(!preg_match('/^:?([S|R]|)\d{6,7}$/', $userText)){
+                    if(!preg_match('/^:?([S|M]|)[1-9][0-9]{5,6}$/', $userText)){
                         $text = 'Номер заказа введен неверно!';
                         break;
                     }

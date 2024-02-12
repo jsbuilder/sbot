@@ -384,6 +384,10 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
                 $buttons = [[$backButton]];
 
                 if ($userText) {
+                    if(!preg_match('/^:?([S|R]|)\d{6,7}$/', $userText)){
+                        $text = 'Номер заказа введен неверно!';
+                        break;
+                    }
                     $mSubject = 'Telegram - Узнать статус заказа';
                     $mText    = $mSubject . "\r\n" . $this->mUserInfo($user)
                         . "\r\n" . "Номер заказа: " . $userText;

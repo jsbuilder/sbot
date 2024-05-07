@@ -38,7 +38,7 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
 
     private ?MessageEntity $lastMessage;
 
-    private string $userText;
+    private ?string $userText;
 
     private MailerInterface $mailer;
 
@@ -118,7 +118,7 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
     /**
      * @return string
      */
-    public function getUserText(): string
+    public function getUserText(): ?string
     {
         return $this->userText;
     }
@@ -128,7 +128,7 @@ class StartCommand extends AbstractCommand implements PublicCommandInterface
      *
      * @return StartCommand
      */
-    public function setUserText(string $userText): StartCommand
+    public function setUserText(?string $userText): StartCommand
     {
         $this->userText = $userText;
 
